@@ -9,7 +9,8 @@ public class ConsoleApp {
     private static final String COMMAND_EXIT = "/exit";
     private static final String COMMAND_CLEAR = "/clear";
     private static final String EMPTY_STRING = "";
-    private static final String CMD_CLEAR = "\033[H\033[2J";
+
+    private static final ProcessBuilder PROCESS_CLEAR =  new ProcessBuilder("cmd", "/c", "cls");
 
     public static int run() {
         try (Reader reader = new ReaderSystemIn()) {
@@ -20,15 +21,15 @@ public class ConsoleApp {
             loop: while (true) {
 
                 switch (snakeCase = reader.nextLine().toLowerCase(Locale.ROOT)) {
+
                     case EMPTY_STRING:
-                        continue;
+                        break;
 
                     case COMMAND_EXIT:
                         break loop;
 
                     case COMMAND_CLEAR:
-                        System.out.print(CMD_CLEAR);
-                        System.out.flush();
+                        clear();
                         break;
 
                     default:
@@ -37,12 +38,16 @@ public class ConsoleApp {
 
             }
 
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             System.out.println(e.getClass().getSimpleName() + " : " + e.getMessage());
             return 1;
         }
 
         return 0;
+    }
+
+    private static void clear() throws IOException, InterruptedException {
+        PROCESS_CLEAR.inheritIO().start().waitFor();
     }
 
 }
